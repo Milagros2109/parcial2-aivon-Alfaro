@@ -1,137 +1,85 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.time.LocalDate;
+import java.time.Month;
+import org.junit.*;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author Usuario
- */
 public class RevendedoraTest {
-    
-    public RevendedoraTest() {
-    }
-    
+
+    static Revendedora revCuenta;
+    static Revendedora rev3;
+    static int i = 1;
+
     @BeforeClass
     public static void setUpClass() {
+        LocalDate fechaLocal = LocalDate.of(2024, Month.JUNE, 8);
+        System.out.println("Fecha de transaccion: " + fechaLocal);
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
+        System.out.println("FIN de la transaccion");
     }
-    
+
     @Before
     public void setUp() {
+        revCuenta = new Revendedora(1, 9000.0);
+        rev3 = new Revendedora(3, 9000.0);
     }
-    
+
     @After
     public void tearDown() {
+        System.out.println("Transaccion " + i + " > El monto en cuenta es " + revCuenta.getSaldo());
+        i++;
     }
 
-    /**
-     * Test of getSaldo method, of class Revendedora.
-     */
+    @Test(expected = Exception.class)
+    public void testRetirarFallo() throws Exception {
+        revCuenta.retirarDinero(88000.0);
+    }
+
     @Test
-    public void testGetSaldo() {
-        System.out.println("getSaldo");
-        Revendedora instance = new Revendedora();
-        double expResult = 0.0;
-        double result = instance.getSaldo();
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testRetirarExito() throws Exception {
+        revCuenta.retirarDinero(1000.0);
+        assertEquals(8000.0, revCuenta.getSaldo(), 0.2);
     }
 
-    /**
-     * Test of getCuenta method, of class Revendedora.
-     */
-    @Test
-    public void testGetCuenta() {
-        System.out.println("getCuenta");
-        Revendedora instance = new Revendedora();
-        Object expResult = null;
-        Object result = instance.getCuenta();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of depositarDinero method, of class Revendedora.
-     */
     @Test
     public void testDepositarDinero() {
-        System.out.println("depositarDinero");
-        double monto = 0.0;
-        Revendedora instance = new Revendedora();
-        instance.depositarDinero(monto);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertNull(revCuenta.getCuenta());
+        revCuenta.depositarDinero(2000.0);
+        assertEquals(11000.0, revCuenta.getSaldo(), 0.2);
     }
 
-    /**
-     * Test of retirarDinero method, of class Revendedora.
-     */
     @Test
-    public void testRetirarDinero() throws Exception {
-        System.out.println("retirarDinero");
-        double monto = 0.0;
-        Revendedora instance = new Revendedora();
-        double expResult = 0.0;
-        double result = instance.retirarDinero(monto);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testTransferirCuentaNoNula() throws Exception {
+        Revendedora rev2 = new Revendedora(2, 5000.0);
+        assertNotNull(rev2);
+        revCuenta.transferirDinero(rev2, 1500.0);
+        assertEquals(7500.0, revCuenta.getSaldo(), 0.2);
     }
 
-    /**
-     * Test of transferirDinero method, of class Revendedora.
-     */
     @Test
-    public void testTransferirDinero() throws Exception {
-        System.out.println("transferirDinero");
-        Revendedora destino = null;
-        double monto = 0.0;
-        Revendedora instance = new Revendedora();
-        instance.transferirDinero(destino, monto);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSiempreFalla() {
+        fail("Este test falla de forma intencional");
     }
 
-    /**
-     * Test of convertirMoneda method, of class Revendedora.
-     */
     @Test
-    public void testConvertirMoneda() {
-        System.out.println("convertirMoneda");
-        String cotizacion = "";
-        Revendedora instance = new Revendedora();
-        double expResult = 0.0;
-        double result = instance.convertirMoneda(cotizacion);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testDolarMEP1() {
+        assertEquals(1300.0, revCuenta.convertirMoneda("1300"), 0.2);
     }
 
-    /**
-     * Test of PagoDemorado method, of class Revendedora.
-     */
     @Test
-    public void testPagoDemorado() throws Exception {
-        System.out.println("PagoDemorado");
-        int time = 0;
-        Revendedora instance = new Revendedora();
-        instance.PagoDemorado(time);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testDolarMEP2() {
+        assertEquals(1300.0, revCuenta.convertirMoneda("1300 U$S"), 0.2);
     }
-    
+
+    @Test
+    public void testMismaRevendedora() {
+        assertSame("Las cuentas son diferentes", revCuenta, rev3);
+    }
+
+    @Test(timeout = 60)
+    public void testPagoDemorado() throws InterruptedException {
+        revCuenta.PagoDemorado(80);
+    }
 }
